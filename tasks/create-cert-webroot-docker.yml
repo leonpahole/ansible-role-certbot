@@ -18,7 +18,7 @@
   register: docker_container_list
 
 - name: Copy app nginx conf for temporary nginx container
-  copy:
+  template:
     src: "{{ role_path }}/files/nginx.conf"
     dest: "/tmp/nginx.conf"
     mode: "666"
