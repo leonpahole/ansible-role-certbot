@@ -19,6 +19,6 @@
 - name: Amazon - replace line in certbot auto script to make it work for Amazon Linux
   lineinfile:
     path: "{{ certbot_script }}"
-    regexp: 'elif [ -f /etc/redhat-release ]; then'
+    regexp: 'elif \[ -f \/etc\/redhat-release \]; then'
     line: "elif [ -f /etc/redhat-release ] || grep 'cpe:.*:amazon_linux:2' /etc/os-release > /dev/null 2>&1; then"
   when: ansible_os_family == 'RedHat' and ansible_distribution == 'Amazon'
