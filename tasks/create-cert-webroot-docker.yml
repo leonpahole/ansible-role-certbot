@@ -1,0 +1,48 @@
+---
+- name: Check if certificate already exists.
+  stat:
+    path: /etc/letsencrypt/live/{{ cert_item.domains | first | replace('*.', '') }}/cert.pem
+  register: letsencrypt_cert
+
+- name: Create webroot directory
+  file:
+    state: directory
+    mode: "755"
+    owner: "{{ ansible_user }}"
+    path: "{{ certbot_webroot }}"
+    recurse: yes
+  when: create_webroot
+
+- name: Check if proxy container is running
+  shell: "docker ps --filter \"name={{ proxy_container_name }}\""
+  register: docker_container_list
+
+- name: Copy app nginx conf for temporary nginx container
+  template:
+    src: "/nginx.conf"
+    dest: "/tmp/nginx.conf"
+    mode: "666"
+  when: "proxy_container_name not in docker_container_list.stdout"
+
+- name: Create temporary nginx container for certificates
+  docker_container:
+    name: "{{ nginx_container_name }}_tmp"
+    image: nginx
+    pull: yes
+    state: started
+    volumes:
+      - "{{ certbot_webroot }}:{{ certbot_webroot }}"
+      - "/tmp/nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - "80:80"
+      - "443:443"
+  when: "proxy_container_name not in docker_container_list.stdout"
+
+- name: Generate new certificate if one doesn't exist.
+  command: "{{ certbot_create_command }}"
+  when: not letsencrypt_cert.stat.exists
+
+- name: Delete temporary container for nginx if it exists
+  docker_container:
+    name: "{{ proxy_container_name }}_tmp"
+    state: absent
