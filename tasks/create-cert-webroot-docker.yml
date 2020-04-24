@@ -26,7 +26,7 @@
 
 - name: Create temporary nginx container for certificates
   docker_container:
-    name: "{{ nginx_container_name }}_tmp"
+    name: "{{ proxy_container_name }}_tmp"
     image: nginx
     pull: yes
     state: started
