@@ -18,8 +18,8 @@
   register: docker_container_list
 
 - name: Copy app nginx conf for temporary nginx container
-  template:
-    src: "/nginx.conf"
+  copy:
+    src: "{{ role_path }}/files/nginx.conf"
     dest: "/tmp/nginx.conf"
     mode: "666"
   when: "proxy_container_name not in docker_container_list.stdout"
