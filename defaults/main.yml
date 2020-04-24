@@ -22,7 +22,7 @@ certbot_certs: []
 certbot_create_command: >-
   {{ certbot_script }} certonly
   --webroot
-  --webroot-path {{ cert_item.webroot_path | default(certbot_default_webroot) }}
+  --webroot-path {{ cert_item.webroot_path | default(certbot_webroot) }}
   --noninteractive
   --agree-tos
   --email {{ cert_item.email | default(certbot_admin_email) }}
